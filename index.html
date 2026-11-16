@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI Study Master</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background:
+        linear-gradient(135deg, #eef4ff, #f8fbff);
+    min-height: 100vh;
+    color: #172033;
+}
+
+header {
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: white;
+    padding: 25px 20px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+header p {
+    opacity: .9;
+}
+
+.container {
+    width: 95%;
+    max-width: 1000px;
+    margin: 25px auto;
+}
+
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.08);
+}
+
+.mode {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.mode button {
+    flex: 1;
+    padding: 14px;
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.online {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.offline {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.active {
+    outline: 3px solid #2563eb;
+}
+
+textarea {
+    width: 100%;
+    min-height: 230px;
+    padding: 15px;
+    border: 2px solid #dbe3f0;
+    border-radius: 12px;
+    resize: vertical;
+    font-size: 15px;
+    outline: none;
+}
+
+textarea:focus {
+    border-color: #2563eb;
+}
+
+select,
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border: 1px solid #d5dbea;
+    border-radius: 10px;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.options label {
+    background: #f4f7fb;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+button.main {
+    width: 100%;
+    border: 0;
+    background: linear-gradient(135deg,#2563eb,#7c3aed);
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button.main:hover {
+    opacity: .9;
+}
+
+.hidden {
+    display: none;
+}
+
+.info {
+    padding: 12px;
+    background: #eff6ff;
+    border-left: 5px solid #2563eb;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+.question-box {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 20px 0;
+    line-height: 1.5;
+}
+
+.answer {
+    background: #f8fafc;
+    padding: 15px;
+    margin: 10px 0;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.answer:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.correct {
+    background: #dcfce7 !important;
+    border-color: #16a34a !important;
+}
+
+.wrong {
+    background: #fee2e2 !important;
+    border-color: #dc2626 !important;
+}
+
+.explain {
+    margin-top: 15px;
+    padding: 15px;
+    background: #fff7ed;
+    border-left: 5px solid #f97316;
+    border-radius: 8px;
+}
+
+.progress {
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg,#2563eb,#7c3aed);
+    width: 0%;
+}
+
+.score {
+    text-align: center;
+    font-size: 25px;
+    font-weight: bold;
+    margin: 20px;
+}
+
+.footer {
+    text-align: center;
+    padding: 25px;
+    color: #64748b;
+}
+
+@media(max-width:600px) {
+    header h1 {
+        font-size: 22px;
+    }
+
+    .options {
+        grid-template-columns: 1fr;
+    }
+
+    .question-box {
+        font-size: 18px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🧠 AI STUDY MASTER</h1>
+    <p>Biến đề cương thành câu hỏi để học dễ hiểu hơn</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+
+    <div class="mode">
+        <button id="onlineBtn"
+                class="online active"
+                onclick="setMode('online')">
+            🟢 ONLINE - AI
+        </button>
+
+        <button id="offlineBtn"
+                class="offline"
+                onclick="setMode('offline')">
+            🔵 OFFLINE
+        </button>
+    </div>
+
+    <div id="onlineInfo" class="info">
+        <b>Chế độ Online:</b>
+        AI sẽ phân tích đề cương và tạo câu hỏi thông minh.
+    </div>
+
+    <div id="offlineInfo" class="info hidden">
+        <b>Chế độ Offline:</b>
+        Không cần Internet. JavaScript sẽ đọc nội dung đề cương
+        và tạo câu hỏi từ nội dung bạn nhập.
+    </div>
+
+    <h3>📚 Nhập đề cương / bài học</h3>
+
+    <textarea
+        id="content"
+        placeholder="Ví dụ:
+
+Bài 1: Dao động điều hòa
+
+Dao động điều hòa là dao động trong đó li độ của vật là một hàm cosin hoặc sin theo thời gian.
+
+Công thức:
+x = A cos(ωt + φ)
+
+Trong đó:
+A là biên độ.
+ω là tần số góc.
+φ là pha ban đầu."></textarea>
+
+    <br><br>
+
+    <label>
+        Số câu hỏi:
+    </label>
+
+    <select id="numberQuestions">
+        <option value="5">5 câu</option>
+        <option value="10">10 câu</option>
+        <option value="15">15 câu</option>
+        <option value="20">20 câu</option>
+        <option value="30">30 câu</option>
+    </select>
+
+    <label>
+        Loại câu hỏi:
+    </label>
+
+    <select id="questionType">
+        <option value="mix">🎯 Hỗn hợp</option>
+        <option value="mcq">🔤 Trắc nghiệm</option>
+        <option value="truefalse">✅ Đúng / Sai</option>
+        <option value="short">✍️ Câu hỏi ngắn</option>
+    </select>
+
+    <button class="main" onclick="generateQuestions()">
+        🚀 TẠO CÂU HỎI
+    </button>
+
+</div>
+
+<div id="quiz" class="card hidden">
+
+    <div>
+        Câu <span id="currentNumber">1</span>
+        /
+        <span id="totalNumber">5</span>
+    </div>
+
+    <div class="progress">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <div id="questionText" class="question-box"></div>
+
+    <div id="answers"></div>
+
+    <div id="explanation"></div>
+
+    <button
+        id="nextBtn"
+        class="main hidden"
+        onclick="nextQuestion()">
+        ➡️ CÂU TIẾP THEO
+    </button>
+
+</div>
+
+<div id="result" class="card hidden">
+
+    <h2 style="text-align:center">
+        🎉 KẾT QUẢ
+    </h2>
+
+    <div class="score">
+        <span id="score"></span>
+    </div>
+
+    <p id="resultText" style="text-align:center"></p>
+
+    <button class="main" onclick="restartQuiz()">
+        🔄 LÀM LẠI
+    </button>
+
+</div>
+
+</div>
+
+<div class="footer">
+    AI Study Master © 2026
+</div>
+
+
+<script>
+
+let mode = "online";
+
+let questions = [];
+
+let currentQuestion = 0;
+
+let score = 0;
+
+
+/* =========================
+   CHUYỂN CHẾ ĐỘ
+========================= */
+
+function setMode(selectedMode) {
+
+    mode = selectedMode;
+
+    document
+        .getElementById("onlineBtn")
+        .classList.remove("active");
+
+    document
+        .getElementById("offlineBtn")
+        .classList.remove("active");
+
+    if (mode === "online") {
+
+        document
+            .getElementById("onlineBtn")
+            .classList.add("active");
+
+        document
+            .getElementById("onlineInfo")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("offlineInfo")
+            .classList.add("hidden");
+
+    } else {
+
+        document
+            .getElementById("offlineBtn")
+            .classList.add("active");
+
+        document
+            .getElementById("offlineInfo")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("onlineInfo")
+            .classList.add("hidden");
+    }
+}
+
+
+/* =========================
+   TẠO CÂU HỎI
+========================= */
+
+async function generateQuestions() {
+
+    const content =
+        document.getElementById("content").value.trim();
+
+    if (!content) {
+
+        alert("Bạn hãy nhập đề cương hoặc bài học trước!");
+
+        return;
+    }
+
+    if (mode === "offline") {
+
+        createOfflineQuestions(content);
+
+    } else {
+
+        await createOnlineQuestions(content);
+
+    }
+}
+
+
+/* =========================
+   OFFLINE
+========================= */
+
+function createOfflineQuestions(content) {
+
+    const number =
+        Number(document.getElementById("numberQuestions").value);
+
+    questions = [];
+
+    /*
+    Tách nội dung thành các câu.
+    */
+
+    let sentences =
+        content
+        .replace(/\n+/g, " ")
+        .split(/[.!?;]+/)
+        .map(x => x.trim())
+        .filter(x => x.length > 15);
+
+    if (sentences.length === 0) {
+
+        alert("Không tìm thấy đủ nội dung để tạo câu hỏi.");
+
+        return;
+    }
+
+    /*
+    Tạo câu hỏi từ các câu trong đề cương.
+    */
+
+    for (let i = 0; i < number; i++) {
+
+        let sentence =
+            sentences[i % sentences.length];
+
+        let words =
+            sentence.split(/\s+/);
+
+        let answer =
+            words.slice(0, Math.min(6, words.length)).join(" ");
+
+        questions.push({
+
+            question:
+                "Theo đề cương, nội dung nào sau đây phù hợp với kiến thức: " +
+                sentence + "?",
+
+            answers: [
+                sentence,
+                "Nội dung không liên quan đến bài học",
+                "Một khái niệm hoàn toàn khác",
+                "Không có thông tin trong đề cương"
+            ],
+
+            correct: 0,
+
+            explanation:
+                "Đáp án đúng được lấy trực tiếp từ nội dung bạn đã nhập."
+        });
+    }
+
+    startQuiz();
+}
+
+
+/* =========================
+   ONLINE
+========================= */
+
+async function createOnlineQuestions(content) {
+
+    /*
+    PHẦN NÀY DÙNG ĐỂ KẾT NỐI AI API.
+
+    Bạn có thể thay URL API và cách gửi dữ liệu
+    theo AI provider mà bạn sử dụng.
+    */
+
+    const number =
+        Number(document.getElementById("numberQuestions").value);
+
+    const type =
+        document.getElementById("questionType").value;
+
+    /*
+    DEMO:
+    Nếu chưa cấu hình API thì dùng bộ tạo câu hỏi
+    offline làm phương án dự phòng.
+    */
+
+    try {
+
+        /*
+        Ví dụ cấu trúc khi kết nối server AI:
+
+        const response = await fetch("/api/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                content: content,
+                number: number,
+                type: type
+            })
+        });
+
+        questions = await response.json();
+
+        */
+
+        alert(
+            "Chế độ Online AI chưa được cấu hình API.\n\n" +
+            "Website sẽ tạm dùng bộ tạo câu hỏi Offline."
+        );
+
+        createOfflineQuestions(content);
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Không kết nối được AI. Chuyển sang Offline.");
+
+        createOfflineQuestions(content);
+    }
+}
+
+
+/* =========================
+   BẮT ĐẦU QUIZ
+========================= */
+
+function startQuiz() {
+
+    currentQuestion = 0;
+
+    score = 0;
+
+    document
+        .getElementById("quiz")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("result")
+        .classList.add("hidden");
+
+    document
+        .getElementById("totalNumber")
+        .textContent = questions.length;
+
+    showQuestion();
+}
+
+
+/* =========================
+   HIỂN THỊ CÂU HỎI
+========================= */
+
+function showQuestion() {
+
+    let q =
+        questions[currentQuestion];
+
+    document
+        .getElementById("currentNumber")
+        .textContent =
+        currentQuestion + 1;
+
+    document
+        .getElementById("progressBar")
+        .style.width =
+        ((currentQuestion + 1)
+        / questions.length * 100) + "%";
+
+    document
+        .getElementById("questionText")
+        .textContent =
+        q.question;
+
+    let answers =
+        document.getElementById("answers");
+
+    answers.innerHTML = "";
+
+    q.answers.forEach((answer, index) => {
+
+        let div =
+            document.createElement("div");
+
+        div.className = "answer";
+
+        div.textContent =
+            String.fromCharCode(65 + index)
+            + ". "
+            + answer;
+
+        div.onclick =
+            () => selectAnswer(index);
+
+        answers.appendChild(div);
+    });
+
+    document
+        .getElementById("explanation")
+        .innerHTML = "";
+
+    document
+        .getElementById("nextBtn")
+        .classList.add("hidden");
+}
+
+
+/* =========================
+   CHỌN ĐÁP ÁN
+========================= */
+
+function selectAnswer(index) {
+
+    let q =
+        questions[currentQuestion];
+
+    let answerElements =
+        document.querySelectorAll(".answer");
+
+    answerElements.forEach(el => {
+
+        el.style.pointerEvents = "none";
+
+    });
+
+    if (index === q.correct) {
+
+        answerElements[index]
+            .classList.add("correct");
+
+        score++;
+
+        document
+            .getElementById("explanation")
+            .innerHTML =
+            `<div class="explain">
+                ✅ Chính xác!<br><br>
+                ${q.explanation}
+            </div>`;
+
+    } else {
+
+        answerElements[index]
+            .classList.add("wrong");
+
+        answerElements[q.correct]
+            .classList.add("correct");
+
+        document
+            .getElementById("explanation")
+            .innerHTML =
+            `<div class="explain">
+                ❌ Chưa đúng.<br><br>
+                Đáp án đúng:
+                <b>
+                ${q.answers[q.correct]}
+                </b>
+                <br><br>
+                ${q.explanation}
+            </div>`;
+    }
+
+    document
+        .getElementById("nextBtn")
+        .classList.remove("hidden");
+}
+
+
+/* =========================
+   CÂU TIẾP THEO
+========================= */
+
+function nextQuestion() {
+
+    currentQuestion++;
+
+    if (currentQuestion >= questions.length) {
+
+        showResult();
+
+    } else {
+
+        showQuestion();
+    }
+}
+
+
+/* =========================
+   KẾT QUẢ
+========================= */
+
+function showResult() {
+
+    document
+        .getElementById("quiz")
+        .classList.add("hidden");
+
+    document
+        .getElementById("result")
+        .classList.remove("hidden");
+
+    let percent =
+        Math.round(
+            score / questions.length * 100
+        );
+
+    document
+        .getElementById("score")
+        .textContent =
+        score + "/" + questions.length;
+
+    let message = "";
+
+    if (percent >= 90) {
+
+        message =
+        "🔥 Xuất sắc! Bạn đã nắm bài rất tốt.";
+
+    } else if (percent >= 70) {
+
+        message =
+        "👏 Khá tốt! Hãy ôn lại những câu sai.";
+
+    } else if (percent >= 50) {
+
+        message =
+        "📚 Bạn nên ôn lại phần kiến thức chưa chắc.";
+
+    } else {
+
+        message =
+        "💪 Đừng lo! Hãy đọc lại đề cương và thử lại.";
+
+    }
+
+    document
+        .getElementById("resultText")
+        .textContent =
+        message;
+}
+
+
+/* =========================
+   LÀM LẠI
+========================= */
+
+function restartQuiz() {
+
+    currentQuestion = 0;
+
+    score = 0;
+
+    document
+        .getElementById("result")
+        .classList.add("hidden");
+
+    document
+        .getElementById("quiz")
+        .classList.remove("hidden");
+
+    showQuestion();
+}
+
+</script>
+
+</body>
+</html>
